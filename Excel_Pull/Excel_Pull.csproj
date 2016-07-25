@@ -48,16 +48,28 @@
   <ItemGroup>
     <Compile Include="Common_Data\Common_Method.cs" />
     <Compile Include="Common_Data\FormAppearence.cs" />
+    <Compile Include="Common_Data_Structure\Border_DS.cs" />
+    <Compile Include="Common_Data_Structure\ControllerWord.cs" />
+    <Compile Include="Common_Data_Structure\Controller_Size.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="PersonalControllers\MyButton.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PersonalControllers\MyButton.Designer.cs">
+      <DependentUpon>MyButton.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PersonalControllers\MyButton.resx">
+      <DependentUpon>MyButton.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -68,6 +80,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="bin\Debug\Excel_Pull.exe.config" />
+    <None Include="bin\Debug\Excel_Pull.vshost.exe.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -81,6 +95,16 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\Debug\Excel_Pull.exe" />
+    <Content Include="bin\Debug\Excel_Pull.pdb" />
+    <Content Include="bin\Debug\Excel_Pull.vshost.exe" />
+    <Content Include="Common_Data\ReadMe.txt" />
+    <Content Include="Common_Data_Structure\Readme.txt" />
+    <Content Include="PersonalControllers\Boxing_.jpg" />
+    <Content Include="PersonalControllers\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
