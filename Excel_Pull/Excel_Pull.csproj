@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common_Data\Common_Method.cs" />
+    <Compile Include="Common_Method\Common_Method.cs" />
     <Compile Include="Common_Data\FormAppearence.cs" />
     <Compile Include="Common_Data_Structure\Border_DS.cs" />
     <Compile Include="Common_Data_Structure\ControllerWord.cs" />
@@ -57,11 +57,23 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="PersonalControllers\CutTable.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PersonalControllers\CutTable.Designer.cs">
+      <DependentUpon>CutTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="PersonalControllers\MyButton.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="PersonalControllers\MyButton.Designer.cs">
       <DependentUpon>MyButton.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PersonalControllers\MyFileOpen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PersonalControllers\MyFileOpen.Designer.cs">
+      <DependentUpon>MyFileOpen.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,6 +82,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PersonalControllers\MyButton.resx">
       <DependentUpon>MyButton.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PersonalControllers\MyFileOpen.resx">
+      <DependentUpon>MyFileOpen.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -101,6 +116,7 @@
     <Content Include="bin\Debug\Excel_Pull.vshost.exe" />
     <Content Include="Common_Data\ReadMe.txt" />
     <Content Include="Common_Data_Structure\Readme.txt" />
+    <Content Include="Common_Method\ReadMe.txt" />
     <Content Include="PersonalControllers\Boxing_.jpg" />
     <Content Include="PersonalControllers\ReadMe.txt" />
   </ItemGroup>

@@ -11,11 +11,20 @@ using Excel_Pull.Common_Data_Structure;
 
 namespace Excel_Pull.PersonalControllers
 {
+    public enum Mode_{
+        Auto ,              //if word length is longger than the box , box will auto to resize
+        Strict,             //if word length is longger than the box , box will not be resize
+        Resize,             //if word length is not equal the box , box will be resize
+        Default = Auto,     //default value is auto
+
+    }
     public partial class MyButton : UserControl
     {
-        Border_DS Border_Info { get; set; }
-        Controller_Size C_S { get; set; }
-        ControllerWord C_W { get; set; }
+        public Border_DS Border_Info { get; set; }
+        public Controller_Size C_S { get; set; }
+        public ControllerWord C_W { get; set; }
+        public Mode_ Mode { get; set; }
+        public Color BgColor { get; set; }
         public MyButton(Border_DS border_info, Controller_Size cs, ControllerWord cw,Color bgColor)
         {
             InitializeComponent();
@@ -23,10 +32,33 @@ namespace Excel_Pull.PersonalControllers
             C_S = cs;
             C_W = cw;
             this.BackColor = bgColor;
+            BgColor = bgColor;
+            Mode = Mode_.Auto;
         }
         private void DrawBorder_World()
         {
             Graphics g = this.CreateGraphics();
+            #region Pre_Calc
+            SizeF sizef = g.MeasureString(C_W.Text, C_W.Font_);
+            if (Mode == Mode_.Auto)
+            {
+                if (sizef.Width > C_S.Width) {
+                    C_S.Width = (int)(sizef.Width + 1 );
+                }
+            } else if (Mode == Mode_.Resize)
+            {
+                if (sizef.Width != C_S.Width)
+                {
+                    C_S.Width = (int)(sizef.Width + 1);
+                }
+                if (sizef.Height != C_S.Height)
+                {
+                    C_S.Height = (int)(sizef.Height + 1);
+                }
+            }
+            double font_top = (C_S.Height - sizef.Height) / 2,
+                font_right = (C_S.Width - sizef.Width);
+            #endregion
             #region Point A B C D E F G H 
             //  A_________B
             //    E_____F
@@ -53,9 +85,6 @@ namespace Excel_Pull.PersonalControllers
             #endregion
             #region DrawWorld
             {
-                SizeF sizef = g.MeasureString(C_W.Text, C_W.Font_);
-                double font_top = (C_S.Height - sizef.Height) / 2,
-                    font_right = (C_S.Width - sizef.Width);
                 //MessageBox.Show("width = " + sizef.Width + "\nHeight = " + sizef.Height);
                 if (C_W.PutPosition == Position_.Default)
                 {
