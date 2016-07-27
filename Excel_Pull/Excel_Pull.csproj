@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common_Data_Structure\TableInfo.cs" />
     <Compile Include="Common_Method\Common_Method.cs" />
     <Compile Include="Common_Data\FormAppearence.cs" />
     <Compile Include="Common_Data_Structure\Border_DS.cs" />
@@ -62,6 +64,12 @@
     </Compile>
     <Compile Include="PersonalControllers\CutTable.Designer.cs">
       <DependentUpon>CutTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PersonalControllers\HelpDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PersonalControllers\HelpDialog.Designer.cs">
+      <DependentUpon>HelpDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="PersonalControllers\MyButton.cs">
       <SubType>UserControl</SubType>
@@ -80,6 +88,12 @@
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="PersonalControllers\CutTable.resx">
+      <DependentUpon>CutTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PersonalControllers\HelpDialog.resx">
+      <DependentUpon>HelpDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="PersonalControllers\MyButton.resx">
       <DependentUpon>MyButton.cs</DependentUpon>
     </EmbeddedResource>
@@ -97,6 +111,7 @@
     </Compile>
     <None Include="bin\Debug\Excel_Pull.exe.config" />
     <None Include="bin\Debug\Excel_Pull.vshost.exe.config" />
+    <None Include="PersonalControllers\Example.xlsx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

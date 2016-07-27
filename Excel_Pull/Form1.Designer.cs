@@ -106,8 +106,8 @@
             this.Text = "GDFE";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Shown += new System.EventHandler(this.Form1_Shown);
-            this.MouseEnter += new System.EventHandler(this.Form1_MouseEnter);
-            this.MouseLeave += new System.EventHandler(this.Form1_MouseLeave);
+            //this.MouseEnter += new System.EventHandler(this.Form1_MouseEnter);
+            //this.MouseLeave += new System.EventHandler(this.Form1_MouseLeave);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);

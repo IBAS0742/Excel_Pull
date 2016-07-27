@@ -56,15 +56,15 @@ namespace Excel_Pull
                 );
             };
         }
-        private void Form1_MouseEnter(object sender, EventArgs e)
-        {
-            this.Opacity = FormAppearence.MouseEnter;
-        }
+        //private void Form1_MouseEnter(object sender, EventArgs e)
+        //{
+        //    this.Opacity = FormAppearence.MouseEnter;
+        //}
 
-        private void Form1_MouseLeave(object sender, EventArgs e)
-        {
-            this.Opacity = FormAppearence.MouseOver;
-        }
+        //private void Form1_MouseLeave(object sender, EventArgs e)
+        //{
+        //    this.Opacity = FormAppearence.MouseOver;
+        //}
 
         private void Form1_Shown(object sender, EventArgs e)
         {
@@ -95,7 +95,7 @@ namespace Excel_Pull
             };
             mb.MouseHover += (sender, e) =>
             {
-                this.Opacity = Common_Data.FormAppearence.MouseEnter;
+                //this.Opacity = Common_Data.FormAppearence.MouseEnter;
                 ((MyButton)sender).BackColor = Color.FromArgb(138, 157, 160);
             };
             mb.MouseLeave += (sender, e) =>
@@ -147,7 +147,8 @@ namespace Excel_Pull
                     ShowHelp = true,
                     InitialDirectory = OtherData.ExcelRootDirectory
                 };
-                ofd.Filter = "Excel97-2003工作簿(xls)|*.xls|Excel工作簿(xlsx)|.xlsx";
+                //ofd.Filter = "Excel97-2003工作簿(xls)|*.xls|Excel工作簿(xlsx)|*.xlsx";
+                ofd.Filter = "Excel工作簿(xlsx)|*.xlsx|Excel97-2003工作簿(xls)|*.xls";
                 DialogResult dr = ofd.ShowDialog();
                 FileList.Clear();
                 FileList.AddRange(ofd.FileNames);
@@ -155,7 +156,7 @@ namespace Excel_Pull
             };
             mb.MouseHover += (sender, e) =>
             {
-                this.Opacity = Common_Data.FormAppearence.MouseEnter;
+                //this.Opacity = Common_Data.FormAppearence.MouseEnter;
                 ((MyButton)sender).BackColor = Color.FromArgb(138, 157, 160);
             };
             mb.MouseLeave += (sender, e) =>
@@ -197,7 +198,7 @@ namespace Excel_Pull
             };
             mb.MouseHover += (sender, e) =>
             {
-                this.Opacity = Common_Data.FormAppearence.MouseEnter;
+                //this.Opacity = Common_Data.FormAppearence.MouseEnter;
                 ((MyButton)sender).BackColor = Color.FromArgb(138, 157, 160);
             };
             mb.MouseLeave += (sender, e) =>
@@ -238,11 +239,14 @@ namespace Excel_Pull
             Convert.Location = new Point(20, 140);
             this.Controls.Add(Convert);
             Convert.Click += (sender, e) => {
-                this.Close();
+                CutTable ct = new CutTable() {
+                    TargetFile = FileList[0]
+                };
+                ct.ShowDialog();
             };
             Convert.MouseHover += (sender, e) =>
             {
-                this.Opacity = Common_Data.FormAppearence.MouseEnter;
+                //this.Opacity = Common_Data.FormAppearence.MouseEnter;
                 ((MyButton)sender).BackColor = Color.FromArgb(138, 157, 160);
             };
             Convert.MouseLeave += (sender, e) =>
