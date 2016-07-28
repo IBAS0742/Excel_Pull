@@ -101,4 +101,34 @@ namespace Excel_Pull.Common_Data
 
         }
     }
+    public static class extern_method {
+        // T is string this function only write for sheetinf class
+        public static void List_Add_Item(this List<string> list,string line,bool isSplit = true,char[] splitChar = null)
+        {
+            if (isSplit)
+            {
+                if (splitChar == null)
+                {
+                    splitChar = new char[] { ' ' };
+                }
+                string[] items = line.Split(splitChar, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
+                for (int i = 0; i < line.Count(); i++)
+                {
+                    if (list.Contains(items[i])) { }
+                    else
+                    {
+                        list.Add(items[i]);
+                    }
+                }
+            }
+            else
+            {
+                if (list.Contains(line)) { }
+                else
+                {
+                    list.Add(line);
+                }
+            }
+        }
+    }
 }

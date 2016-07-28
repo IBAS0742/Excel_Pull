@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
+using Excel_Pull.Common_Data_Structure;
 
 namespace Excel_Pull.PersonalControllers
 {
@@ -35,6 +36,13 @@ namespace Excel_Pull.PersonalControllers
         private int FirstCol = -1;
         private int LastCol = -1;
         private int ColumnCount;
+        //
+        private int curSheet;
+        private int totalSheet;
+        //
+        private DataSet list;
+        // 
+        private List<SheetInfo> Sheet_Info = null;
         #endregion
         #region System Controllers Event
         public CutTable()
@@ -59,59 +67,78 @@ namespace Excel_Pull.PersonalControllers
         #region Other Self Defined Method
         public void GetList()
         {
-            DataSet list = ExcelG.GetExcel(TargetFile);
+            //DataSet list = ExcelG.GetExcel(@"D:\C#\测试\数据挖掘_hjs\B赛题数据\附件1：旅客列车梯形密度表\201501-12\01月\1.xlsx");
+            list = ExcelG.GetExcel(TargetFile);
             if (!File.Exists(TargetFile))
             {
                 return;
             }
-            //DataSet list = ExcelG.GetExcel(@"D:\C#\测试\数据挖掘_hjs\B赛题数据\附件1：旅客列车梯形密度表\201501-12\01月\1.xlsx");
-            for (int i = 0; i < list.Tables.Count; i++)
+            totalSheet = list.Tables.Count;
+            curSheet = 0;
+            if (Sheet_Info == null)
             {
-                DataTable dt = list.Tables[i];
-                if (dtable != null) { 
-                    dtable_.Clear();
-                    dtable_ = null;
-                    dtable.Clear();
-                    dtable = null;
-                }
-                int j;
-                dtable = new DataTable();
-                dtable_ = new DataTable();
-                ColumnCount = dt.Columns.Count;
-                for (j = 0; j < dt.Columns.Count; j++)
+                Sheet_Info = new List<SheetInfo>();
+                for (int i = 0;i < totalSheet;i++)
                 {
-                    dtable.Columns.Add(dt.Columns[j].ColumnName);
-                    dtable.Columns[j].DataType = typeof(string);
-                    dtable_.Columns.Add(dt.Columns[j].ColumnName);
-                    dtable_.Columns[j].DataType = typeof(string);
+                    Sheet_Info.Add(new SheetInfo());
                 }
-                DataRow dr = dtable.NewRow();
-                DataRow dr_ = dtable_.NewRow();
-                for (j = 0; j < dt.Columns.Count; j++)
-                {
-                    if (dt.Columns[j].ColumnName[0] != 'F')
-                    {
-                        dr[j] = dt.Columns[j].ColumnName;
-                        dr_[j] = dt.Columns[j].ColumnName;
-                    }
-                    else
-                    {
-                        dr[j] = "";
-                        dr_[j] = "";
-                    }
-                }
-                dtable.Rows.Add(dr);
-                for (j = 0; j < dt.Rows.Count && j < toppest; j++)
-                {
-                    dtable.ImportRow(dt.Rows[j]);
-                }
-                curTop = j;
-                dtable.Rows.RemoveAt(j);
-                for (j = 0; j < dt.Rows.Count; j++) {
-                    dtable_.ImportRow(dt.Rows[j]);
-                }
-                toppest = j;
+                OtherData.Sheet_Info = Sheet_Info;
             }
+            GetSheet();
+        }
+        private bool GetSheet()
+        {
+            if (curSheet >= totalSheet)
+            {
+                return false;
+            }
+            DataTable dt = list.Tables[curSheet];
+            if (dtable != null)
+            {
+                dtable_.Clear();
+                dtable_ = null;
+                dtable.Clear();
+                dtable = null;
+            }
+            int j;
+            dtable = new DataTable();
+            dtable_ = new DataTable();
+            ColumnCount = dt.Columns.Count;
+            for (j = 0; j < dt.Columns.Count; j++)
+            {
+                dtable.Columns.Add(dt.Columns[j].ColumnName);
+                dtable.Columns[j].DataType = typeof(string);
+                dtable_.Columns.Add(dt.Columns[j].ColumnName);
+                dtable_.Columns[j].DataType = typeof(string);
+            }
+            DataRow dr = dtable.NewRow();
+            DataRow dr_ = dtable_.NewRow();
+            for (j = 0; j < dt.Columns.Count; j++)
+            {
+                if (dt.Columns[j].ColumnName[0] != 'F')
+                {
+                    dr[j] = dt.Columns[j].ColumnName;
+                    dr_[j] = dt.Columns[j].ColumnName;
+                }
+                else
+                {
+                    dr[j] = "";
+                    dr_[j] = "";
+                }
+            }
+            dtable.Rows.Add(dr);
+            for (j = 0; j < dt.Rows.Count && j < toppest; j++)
+            {
+                dtable.ImportRow(dt.Rows[j]);
+            }
+            curTop = j;
+            dtable.Rows.RemoveAt(j);
+            for (j = 0; j < dt.Rows.Count; j++)
+            {
+                dtable_.ImportRow(dt.Rows[j]);
+            }
+            toppest = j;
+            return true;
         }
         public void Reload()
         {
@@ -156,7 +183,8 @@ namespace Excel_Pull.PersonalControllers
             };
         }
         #endregion
-        #region ToolStriptMenu
+
+        #region ToolStriptMenu ##########################################
         #region Auto Column Width
         private void autoColumnWidthToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -357,7 +385,97 @@ namespace Excel_Pull.PersonalControllers
         }
         #endregion
         #region Resolve A Table *
-        // Now it is time to sleep , and God ask me to sleep .
+        //Mood : -_- , A new day is going now is 2016-07-28 13:06:47
+        #region Sheet Level
+        #region Irrelated Item
+        private void addToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.SelectedCells.Count > 0)
+            {
+                Sheet_Info[curSheet].Add_Irrelated_Item(
+                        dataGridView1
+                            .SelectedCells[0]
+                                .Value
+                                    .ToString()
+                    );
+            }
+        }
+        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Sheet_Info[curSheet].Irrelated_Item_Clear();
+        }
+        #endregion
+        #region Record Item
+        private void addToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.SelectedCells.Count > 0)
+            {
+                Sheet_Info[curSheet].Add_Record_Item(
+                        dataGridView1
+                            .SelectedCells[0]
+                                .Value
+                                    .ToString()
+                    );
+            }
+        }
+        private void removeToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Sheet_Info[curSheet].Record_Item_Clear();
+        }
+        #endregion
+        #endregion
+        #region Table Level
+        #region Record Item
+        private void addToolStripMenuItem4_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void removeToolStripMenuItem4_Click(object sender, EventArgs e)
+        {
+
+        }
+        #endregion
+        #region X Header Item
+        private void addToolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void removeToolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+
+        }
+        #endregion
+        #region Y Header Item
+        private void addToolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void removeToolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+
+        }
+        #region
+        #endregion
+        #endregion
+        #region Table Style
+        private void comfirmSizeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            comfirmSizeToolStripMenuItem.BackColor = Color.FromArgb(150, 127, 255, 0);
+            changingSizeToolStripMenuItem.BackColor = Color.White;
+            Sheet_Info[curSheet].Table_.TableStyle = Table_Style.Comfirm_Size;
+        }
+        private void changingSizeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            changingSizeToolStripMenuItem.BackColor = Color.FromArgb(150, 127, 255, 0);
+            comfirmSizeToolStripMenuItem.BackColor = Color.White;
+            Sheet_Info[curSheet].Table_.TableStyle = Table_Style.Changeing_Size;
+        }
+        #endregion
+        #endregion From Header
+        private void formHeaderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
         #endregion
         #region ShowInfo
         private void showInfoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -395,13 +513,18 @@ namespace Excel_Pull.PersonalControllers
             this.Close();
         }
         #endregion
+
         #endregion
+
     }
 }
 
 /*
+ * Every Sheet show one by one
  * Show table need to using asyncTask
+ * 2016-07-28 21:32:39 : You can find there are many function have a simillar structure , so it is terrible .
  */
+
 /*
  * ToolStriptMenu
  * Auto Column Width : Auto Adjust the Column Width
@@ -417,15 +540,33 @@ namespace Excel_Pull.PersonalControllers
  *                    | * Show Select   :    Only Show The Select Border not to Cut
  *                    | * Cut           :    Cut the table and only the selection on the DataGridView
  *            ________________________________________________________________________________________________
- * Resolve A Table   -| * irrelevant    :    Something At the top line but is not necessary to be recored , and can find some characteristic to distint 
- *                    | * Common Header :    Something At the top line and repeat or not fully repeat at all the table
- *                    | * Header        :    A table header (Common Header may have some word belong to it)
- *                    | * Common Tailer :    Rows repeat at all tables' tailer
- *                    | * Tailer        :    Rows appear at a table's tailer 
- *                    | * Table Style   :    A table style is whether it have a confirm size or whether it size is rely on some information or another factor 
+ * Resolve A Table   -| * Sheet Level      -| //(At this child menu all the operate is point to the sheet)
+ *                                          | * Common irrelated Item   -| * Add \ * Clear
+ *                                          | * Common record Item      -| * Add \ * Remove
+ *                    | * Table Level      -| // (At this child menu all the operate is point to the table)
+ *                                          | * Record Item             -| * Add \ * Remove
+ *                                          | * X Header Item           -| * Add \ * Remove
+ *                                          | * Y Header Item           -| * Add \ * Remove
+ *                                          | * Form Header              : according to the X and Y header item to form header
+ *                                          | * Border Style            -| * Comfirm Size \ * Changing Size
+ *                    | * Other            -| //(Cut Table Rule can Record at here)
+ *                                          | * ???
  *            ________________________________________________________________________________________________
  * ShowInfo   :   Show the information that up to now what the operate user have done .
  * Example    :   Show one or more example for user and it will simple for my work .
  * Help       :   show the help for user and aim to make user know how to use it .
  * Close      :   close the window
+ */
+
+/* 
+ * My operate steps will show as follow :
+ * Firstly   , cut a little part but is complete part .
+ * Secondly  , split the little part , one is belong to a table and another is belong to a sheet (or all table) .
+ * Thirdly   , the sheet's part will be cut as two part that is irrelated part which will be ignore 
+ *             and another is record part which will be save as part of the information of all the table.
+ * Forthly   , to split the table part , you can get two part of them , and one is header part which alway is the toppest and leftest line on a table,
+ *             and another part is data part .
+ * Fifthly   , show the information you had make and you also can go to next step straightly .
+ * Sixthly   , give some rule or some adjustment to make the programe more smart to process you file .
+ * Seventhly , begin to deal with files .
  */

@@ -47,7 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common_Data_Structure\TableInfo.cs" />
+    <Compile Include="Common_Data_Structure\SheetInfo.cs" />
     <Compile Include="Common_Method\Common_Method.cs" />
     <Compile Include="Common_Data\FormAppearence.cs" />
     <Compile Include="Common_Data_Structure\Border_DS.cs" />
