@@ -59,7 +59,7 @@ namespace Excel_Pull.Common_Data
         };
         #endregion
         #region Light_Color color schemes
-        List<Color> Light_Color = new List<Color>() {
+        static public List<Color> Light_Color = new List<Color>() {
             Color.FromArgb(245, 217, 217),
             Color.FromArgb(249, 233, 243),
             Color.FromArgb(251, 188, 249),
@@ -76,5 +76,6 @@ namespace Excel_Pull.Common_Data
             Color.FromArgb(251, 168, 136),
         };
         #endregion
+        static public Color DataGridView_First_Color { get; } = Color.White;
     }
 }

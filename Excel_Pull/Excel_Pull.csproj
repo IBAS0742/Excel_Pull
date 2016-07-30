@@ -47,9 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common_Data\FormAppearence.cs" />
+    <Compile Include="Common_Data_Structure\CellLocation.cs" />
+    <Compile Include="Common_Data_Structure\HeaderInfo.cs" />
     <Compile Include="Common_Data_Structure\SheetInfo.cs" />
     <Compile Include="Common_Method\Common_Method.cs" />
-    <Compile Include="Common_Data\FormAppearence.cs" />
     <Compile Include="Common_Data_Structure\Border_DS.cs" />
     <Compile Include="Common_Data_Structure\ControllerWord.cs" />
     <Compile Include="Common_Data_Structure\Controller_Size.cs" />
@@ -129,7 +131,11 @@
     <Content Include="bin\Debug\Excel_Pull.exe" />
     <Content Include="bin\Debug\Excel_Pull.pdb" />
     <Content Include="bin\Debug\Excel_Pull.vshost.exe" />
+    <Content Include="Common_Data\blue.png" />
+    <Content Include="Common_Data\green.png" />
+    <Content Include="Common_Data\light_color.png" />
     <Content Include="Common_Data\ReadMe.txt" />
+    <Content Include="Common_Data\red.png" />
     <Content Include="Common_Data_Structure\Readme.txt" />
     <Content Include="Common_Method\ReadMe.txt" />
     <Content Include="PersonalControllers\Boxing_.jpg" />

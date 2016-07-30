@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Excel_Pull.Common_Data_Structure;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
@@ -92,7 +93,7 @@ namespace Excel_Pull.Common_Data
             {
                 String sql = "SELECT * FROM  ["+ dt.Rows[i][2].ToString() + "]";            
                 OleDbDataAdapter OleDaExcel = new OleDbDataAdapter(sql, odcon);
-                OleDaExcel.Fill(ds, "table_" + i);//dt.Rows[i][2].ToString());
+                OleDaExcel.Fill(ds, dt.Rows[i][2].ToString());// "table_" + i); // using sheet name , maybe sometime it is importance .
             }
             return ds;
         }
@@ -112,7 +113,7 @@ namespace Excel_Pull.Common_Data
                     splitChar = new char[] { ' ' };
                 }
                 string[] items = line.Split(splitChar, StringSplitOptions.RemoveEmptyEntries).Distinct().ToArray();
-                for (int i = 0; i < line.Count(); i++)
+                for (int i = 0; i < items.Count(); i++)
                 {
                     if (list.Contains(items[i])) { }
                     else
@@ -129,6 +130,32 @@ namespace Excel_Pull.Common_Data
                     list.Add(line);
                 }
             }
+        }
+        public static bool Add_<T> (this List<T> list,T item)
+        {
+            if (list.Contains(item)) {
+                return false;
+            } else
+            {
+                list.Add(item);
+                return true;
+            }
+        }
+        public static bool Equals_(this Color c_1,Color c_2)
+        {
+            return c_1.ToArgb() == c_2.ToArgb();
+        }
+        public static bool Remove_(this List<CellLocation> list,CellLocation item)
+        {
+            for (int i = 0;i < list.Count;i++)
+            {
+                if (list[i].X == item.X && list[i].Y == item.Y)
+                {
+                    list.RemoveAt(i);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

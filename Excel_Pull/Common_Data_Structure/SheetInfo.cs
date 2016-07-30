@@ -37,59 +37,25 @@ namespace Excel_Pull.Common_Data_Structure
             record_Item = new List<string>();
             table = new Table();
         }
-        public void Add_Irrelated_Item(string line,bool isSplit = true,char[] splitChar = null)
-        {
-            irrelated_Item.List_Add_Item(line, isSplit, splitChar);
-        }
-        public void Irrelated_Item_Clear()
-        {
-            irrelated_Item.Clear();
-        }
-        public void Add_Record_Item(string line,bool isSplit = true,char[] splitChar = null) {
-            record_Item.List_Add_Item(line, isSplit, splitChar);
-        }
-        public void Record_Item_Clear()
-        {
-            record_Item.Clear();
-        }
     }
     public enum Table_Style
     {
         Comfirm_Size,
         Changeing_Size
     }
+    /// <summary>
+    /// At here , what I need to record it is not the exactly infromation but the table border
+    /// </summary>
     public class Table {
         #region Prototype
-        // Record the table border up and down and left and right border .
-        // Here the table border we talk is the not the really border but the flag which will match all the table .
-        // > Match what ? 
-        // > By using the flag we can match the next table information , knowing the range and the header and so on .
-        // By smart analying given data , Process will try to give the some range date , and user can adjust them.
-        private List<string> table_range;
-        public List<string> Table_Range { get { return table_range; } }
-        // Layers is the count of the table header .
-        // > How to calculate ?
-        // > Just related the count of the header lines .
-        private int layers;
-        public int Layers { get { return layers; } private set { layers = value; /* reSize the header */} }
-        // (x/y)header is record the header information and the size is related with the layers .
-        // Array will be create dynamically when the layers is change .
-        // Similarly , its record is not the real thing but the some flag .
-        public List<List<string>> xheader = null;
-        public List<List<string>> XHeader { get { return xheader; } }
-        public List<List<string>> yheader = null;
-        public List<List<string>> YHeader { get { return yheader; } }
-        // the var have two optional value to set ,
-        // Comfirm Size  : the header and body is fixed .
-        // Changing Size : table size is not fixed for any table in the sheet 
+        public List<string> Irrelate_Item { get; private set; } = new List<string>();
+        public List<string> Record_Item { get; private set; } = new List<string>();
+        public List<HeaderInfo> XHeader { get; private set; } = new List<HeaderInfo>();
+        public List<HeaderInfo> YHeader { get; private set; } = new List<HeaderInfo>();
         public Table_Style TableStyle { get; set; }
         #endregion
         public Table()
         {
-            table_range = new List<string>();
-            layers = 0;
-            xheader = new List<List<string>>();
-            yheader = new List<List<string>>();
         }
     }
 }

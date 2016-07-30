@@ -14,6 +14,21 @@ using Excel_Pull.Common_Data_Structure;
 
 namespace Excel_Pull.PersonalControllers
 {
+    public enum oColor {
+        SHEET_IR = 0,
+        SHEET_RE = 1,
+        TABLE_IR = 2,
+        TABLE_RE = 3
+    };
+    public enum Table_Structure {
+        SHEET_IR,
+        SHEET_RE,
+        TABLE_IR,
+        TABLE_RE,
+        TABLE_X_HEADER,
+        TABLE_Y_HEADER,
+        NULL
+    }
     public partial class CutTable : Form
     {
         #region Prototype
@@ -36,13 +51,38 @@ namespace Excel_Pull.PersonalControllers
         private int FirstCol = -1;
         private int LastCol = -1;
         private int ColumnCount;
-        //
+        // curSheet is the sheet in that time have been shown in the datagridview1
+        // totalSheet is total sheet count which the opened excel file have .
         private int curSheet;
         private int totalSheet;
-        //
+        // at list you can get all the information about the opened excel file .
         private DataSet list;
-        // 
+        // One Sheet have one corresponding Sheet_Info .
+        // In Sheet_Info there are recording that the sheet level information and the table information ,
+        // and according to the Sheet_Info , program can get more exactly data (or execute more exactly) . 
         private List<SheetInfo> Sheet_Info = null;
+        // Color scheme is the default and private value defined in the program not changing by user .
+        // olastColor will using at the irrelated information and one line one color . 
+        static private List<Color> xColorScheme = OtherData.Blue;
+        private int xlastColor = 0;
+        static private List<Color> yColorScheme = OtherData.Green;
+        private int ylastColor = 0;
+        // get from oColor
+        static private List<Color> oColorScheme = OtherData.Light_Color;
+        // Sheet_Irrelate and Sheet_Record and Table_X_Header and Table_Y_Header 
+        // will record the location of the selected cells , and it is easily when remove the selected cells .
+        // x/yColorUseTime will record the color using statue and 
+        // when one line have a cell have been selected or dis_selected program will search 
+        // wheather have a cell is colored in the same row (column) ,
+        // and then increate or decline the record value .
+        private List<CellLocation> Sheet_Irrelate = new List<CellLocation>();
+        private List<CellLocation> Sheet_Record = new List<CellLocation>();
+        private List<CellLocation> Table_Irrelate = new List<CellLocation>();
+        private List<CellLocation> Table_Record = new List<CellLocation>();
+        private List<CellLocation> Table_X_Header = new List<CellLocation>();
+        private int[] xColorUseTime = new int[xColorScheme.Count];
+        private List<CellLocation> Table_Y_Header = new List<CellLocation>();
+        private int[] yColorUseTime = new int[yColorScheme.Count];
         #endregion
         #region System Controllers Event
         public CutTable()
@@ -158,29 +198,205 @@ namespace Excel_Pull.PersonalControllers
         private void Set_DGV()
         {
             dataGridView1.ColumnHeadersVisible = false;
-            dataGridView1.CellClick += (sender, e) => {
-                if (FirstRow != -1 && LastRow != -1)
+            //dataGridView1.Enabled = false;
+            dataGridView1.MouseClick += (sender, e) =>
+            {
+                if (e.Button == MouseButtons.Right)
                 {
-                    for (int i = FirstRow; i <= LastRow; i++)
+                    if (FirstRow != -1 && LastRow != -1)
                     {
-                        if (FirstCol != -1 && LastCol != -1)
+                        for (int i = FirstRow; i <= LastRow; i++)
                         {
-                            for (int j = FirstCol; j <= LastCol; j++)
+                            if (FirstCol != -1 && LastCol != -1)
                             {
-                                dataGridView1.Rows[i].Cells[j].Style.BackColor = Color.White;
+                                for (int j = FirstCol; j <= LastCol; j++)
+                                {
+                                    dataGridView1.Rows[i].Cells[j].Style.BackColor = OtherData.DataGridView_First_Color;
+                                }
                             }
+                            else
+                            {
+                                dataGridView1.Rows[i].DefaultCellStyle.BackColor = OtherData.DataGridView_First_Color;
+                            }
+                        }
+                    }
+                    contextMenuStrip1.Show(
+                        Control.MousePosition.X + 10,
+                        Control.MousePosition.Y + 10
+                    );
+                }
+            };
+        }
+        private void Add_One_Item_In_List(List<CellLocation> list,Color Tag_Color,object tag)
+        {
+            if (dataGridView1.SelectedCells.Count > 0)
+            {
+                dataGridView1
+                    .SelectedCells[0]
+                        .Style
+                            .BackColor = Tag_Color;
+                list.Add_(new CellLocation()
+                {
+                    X = dataGridView1.SelectedCells[0].RowIndex,
+                    Y = dataGridView1.SelectedCells[0].ColumnIndex
+                });
+
+                dataGridView1
+                    .SelectedCells[0]
+                        .Tag = tag;
+            }
+        }
+        private void Clear_List(List<CellLocation> list) {
+            for (int i = 0;i < list.Count;i++)
+            {
+                dataGridView1
+                    .Rows[list[i].X]
+                        .Cells[list[i].Y]
+                            .Style
+                                .BackColor
+                                    = OtherData.DataGridView_First_Color;
+
+                dataGridView1
+                    .Rows[list[i].X]
+                        .Cells[list[i].Y]
+                            .Tag = Table_Structure.NULL;
+            }
+            list.Clear();
+        }
+        private void Analize_Table()
+        {
+            int xlen = dataGridView1.ColumnCount,
+                ylen = dataGridView1.RowCount - 1,
+                i,
+                j,
+                firstX = -1;
+            Table_Structure ts;
+            for (i = 0;i < ylen;i++)
+            {
+                for (j = 0;j < xlen;j++)
+                {
+                    DataGridViewCell cell = dataGridView1.Rows[i].Cells[j];
+                    ts = (dataGridView1.Rows[i].Cells[j].Tag == null)?Table_Structure.NULL: (Table_Structure)dataGridView1.Rows[i].Cells[j].Tag;
+                    #region
+                    if (ts == Table_Structure.SHEET_IR)
+                    {
+                        Sheet_Info[curSheet].Irrelated_Item.List_Add_Item(cell.Value.ToString());
+                        cell.Tag = Table_Structure.NULL;
+                    } else if (ts == Table_Structure.SHEET_RE)
+                    {
+                        Sheet_Info[curSheet].Record_Item.List_Add_Item(cell.Value.ToString());
+                        cell.Tag = Table_Structure.NULL;
+                    } else if (ts == Table_Structure.TABLE_IR)
+                    {
+                        Sheet_Info[curSheet].Table_.Irrelate_Item.List_Add_Item(cell.Value.ToString());
+                        cell.Tag = Table_Structure.NULL;
+                    } else if (ts == Table_Structure.TABLE_RE)
+                    {
+                        Sheet_Info[curSheet].Table_.Record_Item.List_Add_Item(cell.Value.ToString());
+                        cell.Tag = Table_Structure.NULL;
+                    }
+                    #endregion
+                    #region Table_X_Header
+                    else if (ts == Table_Structure.TABLE_X_HEADER)
+                    {
+                        // scan a horizon line
+                        if (firstX < 0)
+                        {
+                            firstX = i;
+                        }
+                        HeaderInfo hi = new HeaderInfo();
+                        int k;
+                        for (k = 0;k < xlen;k++)
+                        {
+                            if (dataGridView1.Rows[i].Cells[k].Tag != null) {
+                                if ((Table_Structure)dataGridView1.Rows[i].Cells[k].Tag == Table_Structure.TABLE_X_HEADER)
+                                {
+                                    break;
+                                }
+                            } else
+                            {
+                                hi.Flag.List_Add_Item(dataGridView1.Rows[i].Cells[k].Value.ToString());
+                            }
+                        }
+                        hi.FromCell = k;
+                        for (; k < xlen; k++)
+                        {
+                            if (dataGridView1.Rows[i].Cells[k].Tag != null)
+                            {
+                                if ((Table_Structure)dataGridView1.Rows[i].Cells[k].Tag != Table_Structure.TABLE_X_HEADER)
+                                {
+                                    break;
+                                } else
+                                {
+                                    dataGridView1.Rows[i].Cells[k].Tag = Table_Structure.NULL;
+                                }
+                            }
+                        }
+                        k--;
+                        hi.ToCell = xlen - k;
+                        for (;k < xlen;k++)
+                        {
+                            hi.Flag.List_Add_Item(dataGridView1.Rows[i].Cells[k].Value.ToString());
+                        }
+                        Sheet_Info[curSheet].Table_.XHeader.Add(hi);
+                    }
+                    #endregion
+                    #region Table_Y_Header
+                    else if (ts == Table_Structure.TABLE_Y_HEADER)
+                    {
+                        // scan a vertical line
+                        HeaderInfo hi = new HeaderInfo();
+                        int k;
+                        for (k = 0; k < ylen; k++)
+                        {
+                            if (dataGridView1.Rows[k].Cells[j].Tag != null)
+                            {
+                                if ((Table_Structure)dataGridView1.Rows[k].Cells[j].Tag == Table_Structure.TABLE_Y_HEADER)
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                hi.Flag.List_Add_Item(dataGridView1.Rows[k].Cells[j].Value.ToString());
+                            }
+                        }
+                        if (firstX < 0)
+                        {
+                            hi.FromCell = k;
                         }
                         else
                         {
-                            dataGridView1.Rows[i].DefaultCellStyle.BackColor = Color.White;
+                            hi.FromCell = k - firstX;
                         }
+                        for (; k < ylen; k++)
+                        {
+                            if (dataGridView1.Rows[k].Cells[j].Tag != null)
+                            {
+                                if ((Table_Structure)dataGridView1.Rows[k].Cells[j].Tag != Table_Structure.TABLE_Y_HEADER)
+                                {
+                                    break;
+                                }
+                                else
+                                {
+                                    dataGridView1.Rows[k].Cells[j].Tag = Table_Structure.NULL;
+                                }
+                            }
+                        }
+                        k--;
+                        hi.ToCell = ylen - k;
+                        for (; k < ylen; k++)
+                        {
+                            hi.Flag.List_Add_Item(dataGridView1.Rows[k].Cells[j].Value.ToString());
+                        }
+                        Sheet_Info[curSheet].Table_.YHeader.Add(hi);
+                    }
+                    #endregion
+                    else
+                    {
                     }
                 }
-                contextMenuStrip1.Show(
-                    Control.MousePosition.X + 10,
-                    Control.MousePosition.Y + 10
-                );
-            };
+            }
         }
         #endregion
 
@@ -383,6 +599,11 @@ namespace Excel_Pull.PersonalControllers
                 }
             }
         }
+        private void overToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Cut_Table.Visible = false;
+            Resolve_A_Table.Visible = true;
+        }
         #endregion
         #region Resolve A Table *
         //Mood : -_- , A new day is going now is 2016-07-28 13:06:47
@@ -390,69 +611,227 @@ namespace Excel_Pull.PersonalControllers
         #region Irrelated Item
         private void addToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedCells.Count > 0)
-            {
-                Sheet_Info[curSheet].Add_Irrelated_Item(
-                        dataGridView1
-                            .SelectedCells[0]
-                                .Value
-                                    .ToString()
-                    );
-            }
+            Add_One_Item_In_List(Sheet_Irrelate, oColorScheme[(int)oColor.SHEET_IR],Table_Structure.SHEET_IR);
         }
         private void clearToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Sheet_Info[curSheet].Irrelated_Item_Clear();
+            Clear_List(Sheet_Irrelate);
         }
         #endregion
         #region Record Item
         private void addToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedCells.Count > 0)
-            {
-                Sheet_Info[curSheet].Add_Record_Item(
-                        dataGridView1
-                            .SelectedCells[0]
-                                .Value
-                                    .ToString()
-                    );
-            }
+            Add_One_Item_In_List(Sheet_Record, oColorScheme[(int)oColor.SHEET_RE],Table_Structure.SHEET_RE);
         }
-        private void removeToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void clearToolStripMenuItem4_Click(object sender, EventArgs e)
         {
-            Sheet_Info[curSheet].Record_Item_Clear();
+            Clear_List(Sheet_Record);
         }
         #endregion
         #endregion
         #region Table Level
+        #region Irrelated Item
+        private void addToolStripMenuItem5_Click(object sender, EventArgs e)
+        {
+            Add_One_Item_In_List(Table_Irrelate, oColorScheme[(int)oColor.TABLE_IR], Table_Structure.TABLE_IR);
+        }
+        private void clearToolStripMenuItem3_Click(object sender, EventArgs e)
+        {
+            Clear_List(Table_Irrelate);
+        }
+        #endregion
         #region Record Item
         private void addToolStripMenuItem4_Click(object sender, EventArgs e)
         {
-
+            Add_One_Item_In_List(Table_Record, oColorScheme[(int)oColor.TABLE_RE], Table_Structure.TABLE_RE);
         }
         private void removeToolStripMenuItem4_Click(object sender, EventArgs e)
         {
-
+            Clear_List(Table_Record);
         }
         #endregion
         #region X Header Item
         private void addToolStripMenuItem2_Click(object sender, EventArgs e)
         {
-
+            if (dataGridView1.SelectedCells.Count > 0)
+            {
+                for (int i = 0;i < dataGridView1.SelectedCells.Count;i++)
+                {
+                    if (dataGridView1.SelectedCells[i].Style.BackColor.ToArgb() == -1 ||
+                        dataGridView1.SelectedCells[i].Style.BackColor.ToArgb() == 0)
+                    {
+                        int x = dataGridView1.SelectedCells[i].RowIndex,
+                            y = dataGridView1.SelectedCells[i].ColumnIndex,
+                            j;
+                        bool isColored = false;
+                        for (j = 0;j < Table_X_Header.Count;j++)
+                        {
+                            if (Table_X_Header[j].X == x)
+                            {
+                                dataGridView1.SelectedCells[i].Tag = Table_Structure.TABLE_X_HEADER;
+                                dataGridView1.SelectedCells[i].Style.BackColor =
+                                    dataGridView1.Rows[Table_X_Header[j].X]
+                                        .Cells[Table_X_Header[j].Y].Style.BackColor;
+                                isColored = true;
+                                if (Table_X_Header[j].Y == y)
+                                {
+                                }
+                                else
+                                {
+                                    for (int k = 0; k < xColorScheme.Count; k++)
+                                    {
+                                        if (xColorScheme[j] == dataGridView1.SelectedCells[i].Style.BackColor)
+                                        {
+                                            xColorUseTime[j]++;
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        Table_X_Header.Add_(new CellLocation()
+                        {
+                            X = x,
+                            Y = y
+                        });
+                        if (!isColored)
+                        {
+                            for (j = 0;j < xColorScheme.Count;j++)
+                            {
+                                if (xColorUseTime[j] == 0)
+                                {
+                                    dataGridView1.SelectedCells[i].Tag = Table_Structure.TABLE_X_HEADER;
+                                    dataGridView1.SelectedCells[i].Style.BackColor = xColorScheme[j];
+                                    xColorUseTime[j] = 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-        private void removeToolStripMenuItem2_Click(object sender, EventArgs e)
+        private void clearToolStripMenuItem2_Click(object sender, EventArgs e)
         {
+            if (dataGridView1.SelectedCells.Count < 0)
+            {
+                return;
+            }
+            for (int i = 0;i < dataGridView1.SelectedCells.Count;i++)
+            {
 
+                if (dataGridView1.SelectedCells[i].Style.BackColor.ToArgb() == -1 ||
+                    dataGridView1.SelectedCells[i].Style.BackColor.ToArgb() == 0) { } else
+                {
+                    Table_X_Header.Remove_(new CellLocation()
+                    {
+                        X = dataGridView1.SelectedCells[i].RowIndex,
+                        Y = dataGridView1.SelectedCells[i].ColumnIndex
+                    });
+                    for (int j = 0; j < xColorUseTime.Count();j++)
+                    {
+                        if (xColorScheme[j] == dataGridView1.SelectedCells[i].Style.BackColor)
+                        {
+                            xColorUseTime[j]--;
+                            dataGridView1.SelectedCells[i].Style.BackColor = OtherData.DataGridView_First_Color;
+                            break;
+                        }
+                    }
+                }
+            }
         }
         #endregion
         #region Y Header Item
         private void addToolStripMenuItem3_Click(object sender, EventArgs e)
         {
-
+            if (dataGridView1.SelectedCells.Count > 0)
+            {
+                for (int i = 0; i < dataGridView1.SelectedCells.Count; i++)
+                {
+                    if (dataGridView1.SelectedCells[i].Style.BackColor.ToArgb() == -1 ||
+                        dataGridView1.SelectedCells[i].Style.BackColor.ToArgb() == 0)
+                    {
+                        int x = dataGridView1.SelectedCells[i].RowIndex,
+                            y = dataGridView1.SelectedCells[i].ColumnIndex,
+                            j;
+                        bool isColored = false;
+                        for (j = 0; j < Table_Y_Header.Count; j++)
+                        {
+                            if (Table_Y_Header[j].Y == y)
+                            {
+                                dataGridView1.SelectedCells[i].Tag = Table_Structure.TABLE_Y_HEADER;
+                                dataGridView1.SelectedCells[i].Style.BackColor =
+                                    dataGridView1.Rows[Table_Y_Header[j].X]
+                                        .Cells[Table_Y_Header[j].Y].Style.BackColor;
+                                isColored = true;
+                                if (Table_Y_Header[j].X == x)
+                                {
+                                }
+                                else
+                                {
+                                    for (int k = 0; k < yColorScheme.Count; k++)
+                                    {
+                                        if (yColorScheme[j] == dataGridView1.SelectedCells[i].Style.BackColor)
+                                        {
+                                            yColorUseTime[j]++;
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        Table_Y_Header.Add_(new CellLocation()
+                        {
+                            X = x,
+                            Y = y
+                        });
+                        if (!isColored)
+                        {
+                            for (j = 0; j < yColorScheme.Count; j++)
+                            {
+                                if (yColorUseTime[j] == 0)
+                                {
+                                    dataGridView1.SelectedCells[i].Tag = Table_Structure.TABLE_Y_HEADER;
+                                    dataGridView1.SelectedCells[i].Style.BackColor = yColorScheme[j];
+                                    yColorUseTime[j] = 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-        private void removeToolStripMenuItem3_Click(object sender, EventArgs e)
+        private void clearToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-
+            if (dataGridView1.SelectedCells.Count < 0)
+            {
+                return;
+            }
+            for (int i = 0; i < dataGridView1.SelectedCells.Count; i++)
+            {
+                if (dataGridView1.SelectedCells[i].Style.BackColor.ToArgb() == -1 ||
+                    dataGridView1.SelectedCells[i].Style.BackColor.ToArgb() == 0) { }
+                else
+                {
+                    Table_Y_Header.Remove_(new CellLocation()
+                    {
+                        X = dataGridView1.SelectedCells[i].RowIndex,
+                        Y = dataGridView1.SelectedCells[i].ColumnIndex
+                    });
+                    for (int j = 0; j < xColorUseTime.Count(); j++)
+                    {
+                        if (yColorScheme[j] == dataGridView1.SelectedCells[i].Style.BackColor)
+                        {
+                            yColorUseTime[j]--;
+                            dataGridView1.SelectedCells[i].Style.BackColor = OtherData.DataGridView_First_Color;
+                            break;
+                        }
+                    }
+                }
+            }
         }
         #region
         #endregion
@@ -461,17 +840,91 @@ namespace Excel_Pull.PersonalControllers
         private void comfirmSizeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             comfirmSizeToolStripMenuItem.BackColor = Color.FromArgb(150, 127, 255, 0);
-            changingSizeToolStripMenuItem.BackColor = Color.White;
+            changingSizeToolStripMenuItem.BackColor = OtherData.DataGridView_First_Color;
             Sheet_Info[curSheet].Table_.TableStyle = Table_Style.Comfirm_Size;
         }
         private void changingSizeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             changingSizeToolStripMenuItem.BackColor = Color.FromArgb(150, 127, 255, 0);
-            comfirmSizeToolStripMenuItem.BackColor = Color.White;
+            comfirmSizeToolStripMenuItem.BackColor = OtherData.DataGridView_First_Color;
             Sheet_Info[curSheet].Table_.TableStyle = Table_Style.Changeing_Size;
         }
         #endregion
-        #endregion From Header
+        #endregion
+        #region Reset
+        private void resetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+        #endregion
+        #region
+        private void overToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Analize_Table();
+            using (StreamWriter sw = new StreamWriter("tmp.txt")) {
+                sw.WriteLine("Sheet Level : ");
+                sw.WriteLine("\tIrrelated Item > ");
+                Sheet_Info[curSheet].Irrelated_Item.ForEach(
+                        n =>
+                        {
+                            sw.WriteLine("\t\t" + n);
+                        }
+                    );
+                sw.WriteLine("\tRecord Item > ");
+                Sheet_Info[curSheet].Record_Item.ForEach(
+                        n =>
+                        {
+                            sw.WriteLine("\t\t" + n);
+                        }
+                    );
+                sw.WriteLine("\r\nTable Level : ");
+                sw.WriteLine("\tIrrelated Item > ");
+                Sheet_Info[curSheet].Table_.Irrelate_Item.ForEach(
+                        n =>
+                        {
+                            sw.WriteLine("\t\t" + n);
+                        }
+                    );
+                sw.WriteLine("\tRecord Item > ");
+                Sheet_Info[curSheet].Table_.Record_Item.ForEach(
+                        n =>
+                        {
+                            sw.WriteLine("\t\t" + n);
+                        }
+                    );
+                sw.WriteLine("\tX Header > ");
+                Sheet_Info[curSheet].Table_.XHeader.ForEach(
+                        n =>
+                        {
+                            sw.WriteLine("xxxxxxxxxxxxxxxxxxxxxx");
+                            sw.WriteLine("from : " + n.FromCell + "\tto : " + n.ToCell);
+                            n.Flag.ForEach(
+                                    nn =>
+                                    {
+                                        sw.WriteLine(nn);
+                                    }
+                                );
+                        }
+                    );
+                sw.WriteLine("\tY Header > ");
+                Sheet_Info[curSheet].Table_.YHeader.ForEach(
+                        n =>
+                        {
+                            sw.WriteLine("yyyyyyyyyyyyyyyyyyyyy");
+                            sw.WriteLine("from : " + n.FromCell + "\tto : " + n.ToCell);
+                            n.Flag.ForEach(
+                                    nn =>
+                                    {
+                                        sw.WriteLine(nn);
+                                    }
+                                );
+                        }
+                    );
+            }
+        }
+        #endregion
+        #endregion
+        #region From Header
         private void formHeaderToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
@@ -481,6 +934,19 @@ namespace Excel_Pull.PersonalControllers
         private void showInfoToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+        }
+        #endregion
+        #region Next Sheet
+        private void nextSheetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Do you finish the current sheet operate ?","Warning",MessageBoxButtons.YesNo) == DialogResult.No) {
+                return;
+            }
+            curSheet++;
+            if (!GetSheet())
+            {
+                MessageBox.Show("Have not next sheet , it is the last sheet .","Warning",MessageBoxButtons.OK);
+            }
         }
         #endregion
         #region Example
@@ -539,20 +1005,24 @@ namespace Excel_Pull.PersonalControllers
  *                    | * As Last Col   :    Select The Table last column
  *                    | * Show Select   :    Only Show The Select Border not to Cut
  *                    | * Cut           :    Cut the table and only the selection on the DataGridView
+ *                    | * Over          :    Prevent user mistake operate , and will close this menu open next menu
  *            ________________________________________________________________________________________________
  * Resolve A Table   -| * Sheet Level      -| //(At this child menu all the operate is point to the sheet)
  *                                          | * Common irrelated Item   -| * Add \ * Clear
- *                                          | * Common record Item      -| * Add \ * Remove
+ *                                          | * Common record Item      -| * Add \ * Clear
  *                    | * Table Level      -| // (At this child menu all the operate is point to the table)
- *                                          | * Record Item             -| * Add \ * Remove
- *                                          | * X Header Item           -| * Add \ * Remove
- *                                          | * Y Header Item           -| * Add \ * Remove
+ *                                          | * Record Item             -| * Add \ * Clear
+ *                                          | * X Header Item           -| * Add \ * Clear
+ *                                          | * Y Header Item           -| * Add \ * Clear
  *                                          | * Form Header              : according to the X and Y header item to form header
  *                                          | * Border Style            -| * Comfirm Size \ * Changing Size
+ *                    | * Reset : reinit all the selections 
+ *                    | * Over  : Arraising a signal , let program start to work and to analise the user selections .
  *                    | * Other            -| //(Cut Table Rule can Record at here)
  *                                          | * ???
  *            ________________________________________________________________________________________________
  * ShowInfo   :   Show the information that up to now what the operate user have done .
+ * Next Sheet :   Show Next Sheet and user should be promise the curency sheet have be ovre .
  * Example    :   Show one or more example for user and it will simple for my work .
  * Help       :   show the help for user and aim to make user know how to use it .
  * Close      :   close the window
@@ -560,13 +1030,27 @@ namespace Excel_Pull.PersonalControllers
 
 /* 
  * My operate steps will show as follow :
- * Firstly   , cut a little part but is complete part .
- * Secondly  , split the little part , one is belong to a table and another is belong to a sheet (or all table) .
- * Thirdly   , the sheet's part will be cut as two part that is irrelated part which will be ignore 
- *             and another is record part which will be save as part of the information of all the table.
- * Forthly   , to split the table part , you can get two part of them , and one is header part which alway is the toppest and leftest line on a table,
- *             and another part is data part .
- * Fifthly   , show the information you had make and you also can go to next step straightly .
- * Sixthly   , give some rule or some adjustment to make the programe more smart to process you file .
- * Seventhly , begin to deal with files .
+ * Firstly      , cut a little part but is complete part .
+ * Secondly     , split the little part , one is belong to a table and another is belong to a sheet (or all table) .
+ * Thirdly      , the sheet's part will be cut as two part that is irrelated part which will be ignore 
+ *                and another is record part which will be save as part of the information of all the table.
+ * Forthly      , to split the table part , you can get two part of them , and one is header part which alway is the toppest and leftest line on a table,
+ *                and another part is data part .
+ * Fifthly      , show the information you had make and you also can go to next step straightly .
+ * Sixthly      , give some rule or some adjustment to make the programe more smart to process you file .
+ * Seventhly    , begin to deal with files .
+ * Additionally , all the excel will have a same operate that the first excel have defined .
+ */
+
+/*
+ * How To Add Color ?
+ * Sheet Level only have to color : irrelated item and record two color which from ocolorScheme
+ * Table header have two set color : x and y header 
+ * Table irrelate item have one color
+ * Table record item have on color
+ */
+
+/*
+ * warning : 
+ *  header must be some cells together .
  */
