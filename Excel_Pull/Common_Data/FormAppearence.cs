@@ -14,6 +14,18 @@ namespace Excel_Pull.Common_Data
         static public double MouseOver { get { return 0.5; } }
         static public Color Main_Form_Color { get { return Color.FromArgb(116, 253, 107); } }
     }
+    public class DataBase_Data_Struct
+    {
+        public static List<string> Data_Type
+        {
+            get;
+            private set;
+        } = new List<string>() {
+            "STRING",
+            "INT",
+            "DOUBLE",
+        };
+    }
     class OtherData
     {
         static public string ExcelRootDirectory { get { return @"c:\"; } }

@@ -25,6 +25,21 @@ namespace Excel_Pull.PersonalControllers
         public ControllerWord C_W { get; set; }
         public Mode_ Mode { get; set; }
         public Color BgColor { get; set; }
+        public Rectangle GetCurRectangle { get {
+                Rectangle rect = new Rectangle() {
+                    Width = Border_Info.Border_Width_Left + Border_Info.Border_Width_Right + C_S.Width,
+                    Height = Border_Info.Border_Width_Top + Border_Info.Border_Width_Bottom + C_S.Height,
+                    Location = Location
+                };
+                return rect;
+            } }
+        /// <summary>
+        /// Structure Function
+        /// </summary>
+        /// <param name="border_info">set Border</param>
+        /// <param name="cs">only set the controller height and width</param>
+        /// <param name="cw">Set what will show in the Controller</param>
+        /// <param name="bgColor">set controller backgroundColor</param>
         public MyButton(Border_DS border_info, Controller_Size cs, ControllerWord cw,Color bgColor)
         {
             InitializeComponent();
@@ -128,6 +143,10 @@ namespace Excel_Pull.PersonalControllers
         }
 
         private void MyButton_Paint(object sender, PaintEventArgs e)
+        {
+            DrawBorder_World();
+        }
+        public void ReDraw()
         {
             DrawBorder_World();
         }

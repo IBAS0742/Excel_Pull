@@ -271,20 +271,27 @@ namespace Excel_Pull.PersonalControllers
                 j,
                 firstX = -1;
             Table_Structure ts;
+            #region Analize the selections
             for (i = 0;i < ylen;i++)
             {
                 for (j = 0;j < xlen;j++)
                 {
                     DataGridViewCell cell = dataGridView1.Rows[i].Cells[j];
                     ts = (dataGridView1.Rows[i].Cells[j].Tag == null)?Table_Structure.NULL: (Table_Structure)dataGridView1.Rows[i].Cells[j].Tag;
-                    #region
+                    #region SHEET_IR SHEET_RE TABLE_IR TABLE_RE
                     if (ts == Table_Structure.SHEET_IR)
                     {
-                        Sheet_Info[curSheet].Irrelated_Item.List_Add_Item(cell.Value.ToString());
+                        Sheet_Info[curSheet].isNeededGetFirstLine = false;
+                        Sheet_Info[curSheet].Irrelated_Item.Add(cell.Value.ToString());
                         cell.Tag = Table_Structure.NULL;
                     } else if (ts == Table_Structure.SHEET_RE)
                     {
-                        Sheet_Info[curSheet].Record_Item.List_Add_Item(cell.Value.ToString());
+                        List<string> li = new List<string>();
+                        Sheet_Info[curSheet].ar.Sheet_Record.Add(new Loc() { x = j,y = i});
+                        Sheet_Info[curSheet].Record_Item_.Add(cell.Value.ToString());
+                        li.Clear();
+                        li.List_Add_Item(cell.Value.ToString());
+                        Sheet_Info[curSheet].Record_Item.Add(li);
                         cell.Tag = Table_Structure.NULL;
                     } else if (ts == Table_Structure.TABLE_IR)
                     {
@@ -292,7 +299,12 @@ namespace Excel_Pull.PersonalControllers
                         cell.Tag = Table_Structure.NULL;
                     } else if (ts == Table_Structure.TABLE_RE)
                     {
-                        Sheet_Info[curSheet].Table_.Record_Item.List_Add_Item(cell.Value.ToString());
+                        List<string> li = new List<string>();
+                        Sheet_Info[curSheet].ar.Table_Record.Add(new Loc() { x = j, y = i });
+                        Sheet_Info[curSheet].Table_.Record_Item_.Add(cell.Value.ToString());
+                        li.Clear();
+                        li.List_Add_Item(cell.Value.ToString());
+                        Sheet_Info[curSheet].Table_.Record_Item.Add(li);
                         cell.Tag = Table_Structure.NULL;
                     }
                     #endregion
@@ -397,9 +409,9 @@ namespace Excel_Pull.PersonalControllers
                     }
                 }
             }
+            #endregion
         }
         #endregion
-
         #region ToolStriptMenu ##########################################
         #region Auto Column Width
         private void autoColumnWidthToolStripMenuItem_Click(object sender, EventArgs e)
@@ -857,70 +869,27 @@ namespace Excel_Pull.PersonalControllers
 
         }
         #endregion
-        #region
+        #region Over
         private void overToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             Analize_Table();
-            using (StreamWriter sw = new StreamWriter("tmp.txt")) {
-                sw.WriteLine("Sheet Level : ");
-                sw.WriteLine("\tIrrelated Item > ");
-                Sheet_Info[curSheet].Irrelated_Item.ForEach(
-                        n =>
-                        {
-                            sw.WriteLine("\t\t" + n);
-                        }
-                    );
-                sw.WriteLine("\tRecord Item > ");
-                Sheet_Info[curSheet].Record_Item.ForEach(
-                        n =>
-                        {
-                            sw.WriteLine("\t\t" + n);
-                        }
-                    );
-                sw.WriteLine("\r\nTable Level : ");
-                sw.WriteLine("\tIrrelated Item > ");
-                Sheet_Info[curSheet].Table_.Irrelate_Item.ForEach(
-                        n =>
-                        {
-                            sw.WriteLine("\t\t" + n);
-                        }
-                    );
-                sw.WriteLine("\tRecord Item > ");
-                Sheet_Info[curSheet].Table_.Record_Item.ForEach(
-                        n =>
-                        {
-                            sw.WriteLine("\t\t" + n);
-                        }
-                    );
-                sw.WriteLine("\tX Header > ");
-                Sheet_Info[curSheet].Table_.XHeader.ForEach(
-                        n =>
-                        {
-                            sw.WriteLine("xxxxxxxxxxxxxxxxxxxxxx");
-                            sw.WriteLine("from : " + n.FromCell + "\tto : " + n.ToCell);
-                            n.Flag.ForEach(
-                                    nn =>
-                                    {
-                                        sw.WriteLine(nn);
-                                    }
-                                );
-                        }
-                    );
-                sw.WriteLine("\tY Header > ");
-                Sheet_Info[curSheet].Table_.YHeader.ForEach(
-                        n =>
-                        {
-                            sw.WriteLine("yyyyyyyyyyyyyyyyyyyyy");
-                            sw.WriteLine("from : " + n.FromCell + "\tto : " + n.ToCell);
-                            n.Flag.ForEach(
-                                    nn =>
-                                    {
-                                        sw.WriteLine(nn);
-                                    }
-                                );
-                        }
-                    );
-            }
+            ShowResult sr = new ShowResult();
+            sr.RL_Sheet_One.list = new List<string>();
+            Sheet_Info[curSheet].Record_Item.ForEach(
+                    n => {
+                        sr.RL_Sheet_One.list.AddRange(n);
+                    }
+                );
+            sr.RL_Sheet_Two.list = Sheet_Info[curSheet].Record_Item_;
+            sr.RL_Table_One.list = new List<string>();
+            Sheet_Info[curSheet].Table_.Record_Item.ForEach(
+                    n =>
+                    {
+                        sr.RL_Table_One.list.AddRange(n);
+                    }
+                );
+            sr.RL_Table_Two.list = Sheet_Info[curSheet].Table_.Record_Item_;
+            sr.ShowDialog();
         }
         #endregion
         #endregion
@@ -981,7 +950,6 @@ namespace Excel_Pull.PersonalControllers
         #endregion
 
         #endregion
-
     }
 }
 
@@ -1054,3 +1022,21 @@ namespace Excel_Pull.PersonalControllers
  * warning : 
  *  header must be some cells together .
  */
+
+/*
+ * How to do when over get the informations ?
+ * How to thinking ?
+ * * First , what I can get ? (Here only talk about the table level .)
+ * I will get the x and y header informations and also get the local about the x and y header .
+ * * And then ? (I am just talking about the table level .)
+ * How to dear with the x and y header ?
+ * Set their data structure and data length ? Prepare for database to store them ?
+ * Set their relation (x to y is ) ?
+ */
+
+/*
+ * How To Store The Table in The DataBase ?
+ * TABLE_ID SHEET_RE TABLE_RE
+ * RECORD_ID TABLE_ID X_H_1 X_H_2 ... Y_H_1 Y_H_2 ... VALUE
+ */
+

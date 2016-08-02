@@ -21,22 +21,19 @@ namespace Excel_Pull.Common_Data_Structure
         // and it may have some garbage(LAJI) in the whole record .
         // However , using a list to stored the cutted record element can make the storage using less ,
         // and search or judge a record more faster , and more adapted .
-        private List<string> irrelated_Item;
-        public List<string> Irrelated_Item { get { return irrelated_Item; } }
+        public List<string> Irrelated_Item { get; private set; } = new List<string>();
         // It will record the infromation which will be record as the common infromation for all the tables in a sheet .
         // I will give the reasons as same as the irrelated item .
-        private List<string> record_Item;
-        public List<string> Record_Item { get { return record_Item; } }
+        public List<string> Record_Item_ { get; private set; } = new List<string>();
+        public List<List<string>> Record_Item { get; private set; } = new List<List<string>>();
         // table information
-        private Table table;
-        public Table Table_ { get { return table; } }
+        public Table Table_ { get; private set; } = new Table();
+        // For the first line is in the datatable header 
+        // so if it is not nessary to get information in the header ,
+        // I can ignore there exist a line , and program can run faster .
+        public bool isNeededGetFirstLine { get; set; } = true;
+        public AnalizeResult ar { get; private set; } = new AnalizeResult();
         #endregion
-        public SheetInfo()
-        {
-            irrelated_Item = new List<string>();
-            record_Item = new List<string>();
-            table = new Table();
-        }
     }
     public enum Table_Style
     {
@@ -44,18 +41,29 @@ namespace Excel_Pull.Common_Data_Structure
         Changeing_Size
     }
     /// <summary>
-    /// At here , what I need to record it is not the exactly infromation but the table border
+    /// At here , what I need to record is not the exactly infromation but the table border
     /// </summary>
     public class Table {
         #region Prototype
         public List<string> Irrelate_Item { get; private set; } = new List<string>();
-        public List<string> Record_Item { get; private set; } = new List<string>();
+        public List<string> Record_Item_ { get; private set; } = new List<string>();
+        public List<List<string>> Record_Item { get; private set; } = new List<List<string>>();
         public List<HeaderInfo> XHeader { get; private set; } = new List<HeaderInfo>();
         public List<HeaderInfo> YHeader { get; private set; } = new List<HeaderInfo>();
         public Table_Style TableStyle { get; set; }
         #endregion
-        public Table()
-        {
-        }
+    }
+
+    public class AnalizeResult
+    {
+        public List<Loc> Sheet_Record { get; private set; } = new List<Loc>();
+        public List<Loc> Table_Record { get; private set; } = new List<Loc>();
+        public string TableStartKeyWord { get; set; }
+        public int KeyWordLocation { get; set; }
+    }
+    public class Loc
+    {
+        public int x { get; set; }
+        public int y { get; set; }
     }
 }

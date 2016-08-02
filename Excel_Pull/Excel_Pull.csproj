@@ -85,6 +85,18 @@
     <Compile Include="PersonalControllers\MyFileOpen.Designer.cs">
       <DependentUpon>MyFileOpen.cs</DependentUpon>
     </Compile>
+    <Compile Include="PersonalControllers\ResultLine.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PersonalControllers\ResultLine.Designer.cs">
+      <DependentUpon>ResultLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PersonalControllers\ShowResult.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PersonalControllers\ShowResult.Designer.cs">
+      <DependentUpon>ShowResult.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -101,6 +113,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PersonalControllers\MyFileOpen.resx">
       <DependentUpon>MyFileOpen.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PersonalControllers\ResultLine.resx">
+      <DependentUpon>ResultLine.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PersonalControllers\ShowResult.resx">
+      <DependentUpon>ShowResult.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
