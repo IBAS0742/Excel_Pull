@@ -19,6 +19,8 @@ namespace Excel_Pull.PersonalControllers
     {
         private List<MyButton> mbs = new List<MyButton>();
         private ComboBox cb = new ComboBox();
+        // record every item whether it is set to record
+        public List<bool> check { get; set; } = new List<bool>();
         public List<string> list { get; set; }
         private int counter = 0;
         public ResultLine()

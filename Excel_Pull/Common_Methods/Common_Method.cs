@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Excel_Pull.Common_Data
+namespace Excel_Pull.Common_Methods
 {
     class Common_Method
     {

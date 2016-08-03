@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
 using Excel_Pull.Common_Data_Structure;
+using Excel_Pull.Common_Methods;
 
 namespace Excel_Pull.PersonalControllers
 {
@@ -890,6 +891,7 @@ namespace Excel_Pull.PersonalControllers
                 );
             sr.RL_Table_Two.list = Sheet_Info[curSheet].Table_.Record_Item_;
             sr.ShowDialog();
+
         }
         #endregion
         #endregion

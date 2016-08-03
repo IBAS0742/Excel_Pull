@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="adodb, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,10 +54,11 @@
     <Compile Include="Common_Data_Structure\CellLocation.cs" />
     <Compile Include="Common_Data_Structure\HeaderInfo.cs" />
     <Compile Include="Common_Data_Structure\SheetInfo.cs" />
-    <Compile Include="Common_Method\Common_Method.cs" />
+    <Compile Include="Common_Methods\Common_Method.cs" />
     <Compile Include="Common_Data_Structure\Border_DS.cs" />
     <Compile Include="Common_Data_Structure\ControllerWord.cs" />
     <Compile Include="Common_Data_Structure\Controller_Size.cs" />
+    <Compile Include="Common_Methods\Dyn_Create_Access.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -155,11 +159,21 @@
     <Content Include="Common_Data\ReadMe.txt" />
     <Content Include="Common_Data\red.png" />
     <Content Include="Common_Data_Structure\Readme.txt" />
-    <Content Include="Common_Method\ReadMe.txt" />
+    <Content Include="Common_Methods\ReadMe.txt" />
     <Content Include="PersonalControllers\Boxing_.jpg" />
     <Content Include="PersonalControllers\ReadMe.txt" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <COMReference Include="ADOX">
+      <Guid>{00000600-0000-0010-8000-00AA006D2EA4}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>8</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

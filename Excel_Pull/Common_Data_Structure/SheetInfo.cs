@@ -59,7 +59,15 @@ namespace Excel_Pull.Common_Data_Structure
         public List<Loc> Sheet_Record { get; private set; } = new List<Loc>();
         public List<Loc> Table_Record { get; private set; } = new List<Loc>();
         public string TableStartKeyWord { get; set; }
-        public int KeyWordLocation { get; set; }
+        public int KeyWordRow { get; set; }
+        public bool isFullSheet { get; set; } = false;
+        public List<int> Sheet_Index { get; private set; } = new List<int>();
+        public bool isFullTable { get; set; } = false;
+        public List<int> Table_Index { get; private set; } = new List<int>();
+        public int Sheet_Start { get; set; } = 0;
+        public int Table_Start { get; set; } = 0;
+        public int xHeaderFrom { get; set; } = 0;
+        public int yHeaderFrom { get; set; } = 0;
     }
     public class Loc
     {
